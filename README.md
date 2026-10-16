@@ -23,6 +23,7 @@ Both steps use the same settings:
 | `platforms` | `github-code-scanning` | Uploads the findings to GitHub code scanning |
 | `artifacts` | `true` | Saves the SARIF file as an artifact named after the category |
 | `annotations` | `true` | Shows each counted finding on its file and line |
+| `job-summary` | `true` | Writes the result and the high, medium and low counts to the job summary |
 
 The inventory step has `if: ${{ !cancelled() }}`, so it still runs after the payments step fails. The job and the workflow run fail because the payments step failed.
 
@@ -53,7 +54,7 @@ The gate counts the 4 findings at or above medium. That is more than `max-findin
 
 After a push to `main`, open the workflow run in the **Actions** tab:
 
-- **Summary**: one job summary for each category, with the result and the high, medium and low counts.
+- **Job summary**: one for each category, from `job-summary: true`, with the result and the high, medium and low counts.
 - **Artifacts**: `payments` and `inventory`, each holding that scan's SARIF file. The payments file is saved even though its step failed.
 - **Annotations**: the 4 counted findings of payments, on their files and lines.
 
