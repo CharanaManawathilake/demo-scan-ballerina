@@ -40,7 +40,6 @@ jobs:
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
-          summary: true
 
       # Runs even though the payments scan failed. Its only finding is low, below the medium gate,
       # so this step passes.
@@ -58,4 +57,3 @@ jobs:
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
-          summary: false
