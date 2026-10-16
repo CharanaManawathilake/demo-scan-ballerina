@@ -1,0 +1,47 @@
+name: SonarQube
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Sends the findings of both packages to SonarQube. Each package is its own SonarQube project.
+# Needs the SONAR_TOKEN and SONAR_HOST_URL secrets, and the Ballerina plugin on the server.
+jobs:
+  sonarqube:
+    name: Send findings to SonarQube
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read # The platform plugin is downloaded from GitHub Packages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # SonarQube needs history for blame and new-code detection
+
+      - name: Scan and send to SonarQube
+        uses: CharanaManawathilake/scan-ballerina@main
+        with:
+          ballerina-version: 2201.13.5
+          paths: |
+            packages/payments
+            packages/inventory
+          category: sonarqube
+          exclude-tests: true
+          job-summary: true
+          platforms: sonarqube
+          platform-config: |
+            sonarqube:
+              host-url: '${{ secrets.SONAR_HOST_URL }}'
+              token: '${{ secrets.SONAR_TOKEN }}'
+              packages:
+                - path: packages/payments
+                  project-key: demo-scan-ballerina-payments
+                  project-name: demo-scan-ballerina payments
+                - path: packages/inventory
+                  project-key: demo-scan-ballerina-inventory
+                  project-name: demo-scan-ballerina inventory

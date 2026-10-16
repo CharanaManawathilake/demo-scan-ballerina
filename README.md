@@ -4,7 +4,7 @@ A demo of the [scan-ballerina](https://github.com/CharanaManawathilake/scan-ball
 
 ## The workflow
 
-[`.github/workflows/scan.yml`](.github/workflows/scan.yml) runs on every push to `main`. You can also run it by hand from the **Actions** tab with **Run workflow**.
+[`.github/workflows/scan.yml`](.github/workflows/scan.yml) runs on every push to `main` and on every pull request to `main`. You can also run it by hand from the **Actions** tab with **Run workflow**.
 
 It has one job with two scan steps:
 
@@ -74,3 +74,9 @@ bal scan --format=sarif
 ```
 
 The report is written to `target/report/scan_results.sarif`. `bal scan` does not drop the findings in `tests/`, so it lists 8 findings. The action drops the 2 in `tests/`.
+
+## SonarQube
+
+[`.github/workflows/sonarqube.yml`](.github/workflows/sonarqube.yml) scans both packages and sends the findings to SonarQube on every push to `main`. Each package goes to its own project: `demo-scan-ballerina-payments` and `demo-scan-ballerina-inventory`. It has no gate, so it passes whatever the findings are.
+
+It needs two repository secrets, `SONAR_HOST_URL` (an `https` URL) and `SONAR_TOKEN`, and the SonarQube server needs the Ballerina language plugin.
