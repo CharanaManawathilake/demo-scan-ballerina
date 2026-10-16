@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 # Sends the findings of both packages to SonarQube. Each package is its own SonarQube project.
-# Needs the SONAR_TOKEN and SONAR_HOST_URL secrets, and the Ballerina plugin on the server.
+# Needs the SONAR_HOST_URL variable and the SONAR_TOKEN secret, and the Ballerina plugin on the server.
 jobs:
   sonarqube:
     name: Send findings to SonarQube
@@ -36,7 +36,7 @@ jobs:
           platforms: sonarqube
           platform-config: |
             sonarqube:
-              host-url: '${{ secrets.SONAR_HOST_URL }}'
+              host-url: '${{ vars.SONAR_HOST_URL }}'
               token: '${{ secrets.SONAR_TOKEN }}'
               packages:
                 - path: packages/payments

@@ -79,4 +79,4 @@ The report is written to `target/report/scan_results.sarif`. `bal scan` does not
 
 [`.github/workflows/sonarqube.yml`](.github/workflows/sonarqube.yml) scans both packages and sends the findings to SonarQube on every push to `main`. Each package goes to its own project: `demo-scan-ballerina-payments` and `demo-scan-ballerina-inventory`. It has no gate, so it passes whatever the findings are.
 
-It needs two repository secrets, `SONAR_HOST_URL` (an `https` URL) and `SONAR_TOKEN`, and the SonarQube server needs the Ballerina language plugin.
+It needs the repository variable `SONAR_HOST_URL` (an `https` URL) and the repository secret `SONAR_TOKEN`, and the SonarQube server needs the Ballerina language plugin.
