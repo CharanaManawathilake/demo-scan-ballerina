@@ -1,5 +1,7 @@
 # demo-scan-ballerina
 
+[![Scan Ballerina](https://github.com/CharanaManawathilake/demo-scan-ballerina/actions/workflows/scan.yml/badge.svg?branch=main)](https://github.com/CharanaManawathilake/demo-scan-ballerina/actions/workflows/scan.yml)
+
 A demo of the [scan-ballerina](https://github.com/CharanaManawathilake/scan-ballerina) action. It runs `bal scan` on two Ballerina packages in one workflow and gives each scan its own category. One scan fails the build at the severity gate and the other passes.
 
 ## The workflow
