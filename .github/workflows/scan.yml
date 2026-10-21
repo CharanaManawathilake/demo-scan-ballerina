@@ -31,7 +31,7 @@ jobs:
       # 4 findings are at or above medium (3 medium and 1 high), and 2 are allowed, so this step
       # fails at the gate. The findings are still uploaded and the SARIF file is still saved.
       - name: Scan payments
-        uses: CharanaManawathilake/scan-ballerina@main
+        uses: ballerina-platform/scan-ballerina@v0.1.0
         with:
           ballerina-version: 2201.13.5
           paths: packages/payments
@@ -48,7 +48,7 @@ jobs:
       # so this step passes.
       - name: Scan inventory
         if: ${{ !cancelled() }}
-        uses: CharanaManawathilake/scan-ballerina@main
+        uses: ballerina-platform/scan-ballerina@v0.1.0
         with:
           ballerina-version: 2201.13.5
           paths: packages/inventory
