@@ -1,3 +1,6 @@
+// Demo: header comment added to shift line numbers.
+// Checks whether a dismissed alert is raised again on a later push.
+
 import ballerina/crypto;
 
 // ballerina:13 (high): a secret embedded as a literal value.
