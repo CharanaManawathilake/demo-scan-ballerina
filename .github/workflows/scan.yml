@@ -39,7 +39,7 @@ jobs:
           exclude-tests: true
           fail-on-severity: medium
           max-findings: 2
-          annotations: true
+          annotations: false
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
@@ -56,7 +56,7 @@ jobs:
           exclude-tests: true
           fail-on-severity: medium
           max-findings: 2
-          annotations: true
+          annotations: false
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
