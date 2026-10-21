@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # 4 findings are at or above medium (3 medium and 1 high), and 2 are allowed, so this step
-      # fails at the gate. The findings are still uploaded and the SARIF file is still saved.
+      # fails at the gate. The SARIF file is still saved.
       - name: Scan payments
         uses: ballerina-platform/scan-ballerina@v0.1.0
         with:
@@ -42,7 +42,6 @@ jobs:
           annotations: true
           job-summary: true
           artifacts: true
-          platforms: github-code-scanning
 
       # Runs even though the payments scan failed. Its only finding is low, below the medium gate,
       # so this step passes.
@@ -59,4 +58,3 @@ jobs:
           annotations: true
           job-summary: true
           artifacts: true
-          platforms: github-code-scanning
