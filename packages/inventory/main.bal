@@ -9,3 +9,8 @@ public function main() {
     int stock = checkpanic int:fromString("10");
     io:println(restock(stock, 5));
 }
+
+// Clean change: adds no finding.
+public isolated function reserve(int current, int amount) returns int {
+    return current - amount;
+}
