@@ -19,6 +19,11 @@ service /orders on new http:Listener(9090) {
         return findOrder(orderId) ?: http:NOT_FOUND;
     }
 
+    resource function delete [string orderId](http:Request req) returns Order|http:NotFound|error {
+        _ = check authenticate(req);
+        return removeOrder(orderId) ?: http:NOT_FOUND;
+    }
+
     resource function post .(http:Request req, NewOrder newOrder) returns Order|error {
         _ = check authenticate(req);
         Order created = {
