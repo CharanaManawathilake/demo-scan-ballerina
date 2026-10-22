@@ -70,7 +70,7 @@ The service has deliberate security issues and code smells, so the scan has some
 | `artifacts` | `true` | Saves the SARIF file as an artifact |
 | `job-summary` | `true` | Writes the high, medium and low counts to the job summary |
 | `exclude-tests` | `true` | Drops findings in `tests/` |
-| `fail-on-severity` | `high` on `main`, `none` on pull requests | Counts the high findings on `main` |
+| `fail-on-severity` | `high` | Counts the high findings |
 | `max-findings` | `5` | Fails the step when more than 5 high findings are counted |
 
 The findings on `main` are under **Security > Code scanning**.
@@ -79,20 +79,20 @@ The findings on `main` are under **Security > Code scanning**.
 
 The two kinds of gate count different findings:
 
-| Where | Gate | Counts | Result |
+| Gate | Runs on | Counts | Result |
 | --- | --- | --- | --- |
-| Push to `main` | `fail-on-severity` and `max-findings` in the action | Every finding in the package | `main` has 8 high findings and 5 are allowed, so the job fails |
-| Pull request | Code scanning and the **Block new code scanning alerts** ruleset | Only the findings that are new compared with `main` | New alerts fail the **Ballerina Scan Tool** check and block the merge. No new alerts passes, even with the existing alerts on `main` |
+| `fail-on-severity` and `max-findings` in the action | `main` and pull requests | Every finding in the package | `main` has 8 high findings and 5 are allowed, so the job fails on `main` and on every pull request |
+| Code scanning and the **Block new code scanning alerts** ruleset | Pull requests | Only the findings that are new compared with `main` | New alerts fail the **Ballerina Scan Tool** check and block the merge. No new alerts passes, even with the existing alerts on `main` |
 
-The action's gate is off for pull requests because it would count the findings that are already on `main` and fail every pull request. The ruleset also needs code scanning results for every pull request, so a pull request that does not upload its findings cannot be merged either.
+The ruleset also needs code scanning results for every pull request, so a pull request that does not upload its findings cannot be merged.
 
 The demo pull requests show each case:
 
-| Branch | Change | Result |
-| --- | --- | --- |
-| `demo-1` | New findings, with annotations and no upload | Blocked: code scanning waits for results that never come |
-| `demo-2` | No new findings | Passes |
-| `demo-3` | New findings, uploaded | Fails: the new alerts fail the **Ballerina Scan Tool** check |
+| Branch | Change | Scan order service | Ballerina Scan Tool | Merge |
+| --- | --- | --- | --- | --- |
+| `demo-1` | New findings, with annotations and no upload | Fails | No results | Blocked |
+| `demo-2` | No new findings | Fails | Passes | Allowed |
+| `demo-3` | New findings, uploaded | Fails | Fails | Blocked |
 
 Code scanning is free for public repositories. Private repositories need GitHub Advanced Security. The job needs `security-events: write` to upload and `actions: read` for the upload to read the workflow run.
 
