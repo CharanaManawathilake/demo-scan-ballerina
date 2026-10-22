@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 
-# Sends the findings of both packages to SonarQube. Each package is its own SonarQube project.
+# Sends the findings of the order service to one SonarQube project, from one job and one scan.
 # Needs the SONAR_HOST_URL variable and the SONAR_TOKEN secret, and the Ballerina plugin on the server.
 jobs:
   sonarqube:
@@ -27,9 +27,7 @@ jobs:
         uses: ballerina-platform/scan-ballerina@v0.1.0
         with:
           ballerina-version: 2201.13.5
-          paths: |
-            packages/payments
-            packages/inventory
+          paths: order-service
           category: sonarqube
           exclude-tests: true
           job-summary: true
@@ -39,9 +37,6 @@ jobs:
               host-url: '${{ vars.SONAR_HOST_URL }}'
               token: '${{ secrets.SONAR_TOKEN }}'
               packages:
-                - path: packages/payments
-                  project-key: demo-scan-ballerina-payments
-                  project-name: demo-scan-ballerina payments
-                - path: packages/inventory
-                  project-key: demo-scan-ballerina-inventory
-                  project-name: demo-scan-ballerina inventory
+                - path: order-service
+                  project-key: demo-scan-ballerina-order-service
+                  project-name: demo-scan-ballerina order service

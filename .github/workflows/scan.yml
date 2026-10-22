@@ -12,14 +12,12 @@ on:
 permissions:
   contents: read
 
-# One job with two scans, each with its own category, so each has its own job summary, SARIF
-# artifact and analysis in GitHub code scanning.
-# Findings bal scan reports for each package:
-#   packages/payments   1 high, 3 medium, 2 low, and 2 low in tests/ that exclude-tests drops
-#   packages/inventory  1 low
+# Scans the order service and uploads the findings to GitHub code scanning. There is no gate, so
+# the job passes whatever the findings are. On a pull request, code scanning compares the findings
+# with main and reports only the new ones.
 jobs:
   scan:
-    name: Scan Ballerina packages
+    name: Scan order service
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,35 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 4 findings are at or above medium (3 medium and 1 high), and 2 are allowed, so this step
-      # fails at the gate. The findings are still uploaded and the SARIF file is still saved.
-      - name: Scan payments
+      - name: Scan order service
         uses: ballerina-platform/scan-ballerina@v0.1.0
         with:
           ballerina-version: 2201.13.5
-          paths: packages/payments
-          category: payments
+          paths: order-service
+          category: order-service
           exclude-tests: true
-          fail-on-severity: medium
-          max-findings: 2
-          annotations: true
-          job-summary: true
-          artifacts: true
-          platforms: github-code-scanning
-
-      # Runs even though the payments scan failed. Its only finding is low, below the medium gate,
-      # so this step passes.
-      - name: Scan inventory
-        if: ${{ !cancelled() }}
-        uses: ballerina-platform/scan-ballerina@v0.1.0
-        with:
-          ballerina-version: 2201.13.5
-          paths: packages/inventory
-          category: inventory
-          exclude-tests: true
-          fail-on-severity: medium
-          max-findings: 2
-          annotations: true
+          annotations: false
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
