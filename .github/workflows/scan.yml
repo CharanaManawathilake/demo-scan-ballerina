@@ -12,9 +12,11 @@ on:
 permissions:
   contents: read
 
-# Scans the order service and uploads the findings to GitHub code scanning. There is no gate, so
-# the job passes whatever the findings are. On a pull request, code scanning compares the findings
-# with main and reports only the new ones.
+# Scans the order service and uploads the findings to GitHub code scanning.
+# On main, the gate allows 5 high findings. main has 8, so the job fails. The gate counts every
+# finding in the package, not only new ones, so it is off for pull requests. A pull request is
+# gated by code scanning instead: it compares the findings with main, and the "Block new code
+# scanning alerts" ruleset blocks the merge when there are new alerts or no results.
 jobs:
   scan:
     name: Scan order service
@@ -33,6 +35,8 @@ jobs:
           paths: order-service
           category: order-service
           exclude-tests: true
+          fail-on-severity: ${{ github.event_name == 'pull_request' && 'none' || 'high' }}
+          max-findings: 5
           annotations: false
           job-summary: true
           artifacts: true

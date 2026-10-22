@@ -22,7 +22,7 @@ The service has deliberate security issues and code smells, so the scan has some
 
 ## The findings
 
-`bal scan` reports 34 findings for 30 rules:
+`bal scan` reports 34 findings for 31 rules, 8 high, 12 medium and 14 low:
 
 | File | Severity | Rule | Issue |
 | --- | --- | --- | --- |
@@ -70,8 +70,29 @@ The service has deliberate security issues and code smells, so the scan has some
 | `artifacts` | `true` | Saves the SARIF file as an artifact |
 | `job-summary` | `true` | Writes the high, medium and low counts to the job summary |
 | `exclude-tests` | `true` | Drops findings in `tests/` |
+| `fail-on-severity` | `high` on `main`, `none` on pull requests | Counts the high findings on `main` |
+| `max-findings` | `5` | Fails the step when more than 5 high findings are counted |
 
-There is no `fail-on-severity` gate, so the job passes whatever the findings are. The findings on `main` are under **Security > Code scanning**. On a pull request, code scanning compares the findings with `main` and comments only on the new ones.
+The findings on `main` are under **Security > Code scanning**.
+
+### Gating
+
+The two kinds of gate count different findings:
+
+| Where | Gate | Counts | Result |
+| --- | --- | --- | --- |
+| Push to `main` | `fail-on-severity` and `max-findings` in the action | Every finding in the package | `main` has 8 high findings and 5 are allowed, so the job fails |
+| Pull request | Code scanning and the **Block new code scanning alerts** ruleset | Only the findings that are new compared with `main` | New alerts fail the **Ballerina Scan Tool** check and block the merge. No new alerts passes, even with the existing alerts on `main` |
+
+The action's gate is off for pull requests because it would count the findings that are already on `main` and fail every pull request. The ruleset also needs code scanning results for every pull request, so a pull request that does not upload its findings cannot be merged either.
+
+The demo pull requests show each case:
+
+| Branch | Change | Result |
+| --- | --- | --- |
+| `demo-1` | New findings, with annotations and no upload | Blocked: code scanning waits for results that never come |
+| `demo-2` | No new findings | Passes |
+| `demo-3` | New findings, uploaded | Fails: the new alerts fail the **Ballerina Scan Tool** check |
 
 Code scanning is free for public repositories. Private repositories need GitHub Advanced Security. The job needs `security-events: write` to upload and `actions: read` for the upload to read the workflow run.
 
