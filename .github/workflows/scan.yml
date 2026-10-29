@@ -13,10 +13,10 @@ permissions:
   contents: read
 
 # Scans the order service and shows the findings as workflow annotations, without uploading them.
-# On main, the gate allows 5 high findings. main has 8, so the job fails. The gate counts every
-# finding in the package, not only new ones, so it is off for pull requests. A pull request is
-# gated by code scanning instead: it compares the findings with main, and the "Block new code
-# scanning alerts" ruleset blocks the merge when there are new alerts or no results.
+# The gate allows 5 high findings. main has 8, so the job fails on main and on every pull request,
+# because the gate counts every finding in the package, not only new ones. Code scanning also
+# compares a pull request's findings with main, and the "Block new code scanning alerts" ruleset
+# blocks the merge when there are new alerts or no results.
 jobs:
   scan:
     name: Scan order service
@@ -29,13 +29,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan order service
-        uses: ballerina-platform/scan-ballerina@v0.1.0
+        uses: CharanaManawathilake/scan-ballerina@allow-pr-code-scanning-upload
         with:
           ballerina-version: 2201.13.5
           paths: order-service
           category: order-service
           exclude-tests: true
-          fail-on-severity: ${{ github.event_name == 'pull_request' && 'none' || 'high' }}
+          fail-on-severity: high
           max-findings: 5
           annotations: true
           job-summary: true

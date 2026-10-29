@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0 # SonarQube needs history for blame and new-code detection
 
       - name: Scan and send to SonarQube
-        uses: ballerina-platform/scan-ballerina@v0.1.0
+        uses: CharanaManawathilake/scan-ballerina@allow-pr-code-scanning-upload
         with:
           ballerina-version: 2201.13.5
           paths: order-service
