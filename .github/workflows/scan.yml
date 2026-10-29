@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan order service
-        uses: ballerina-platform/scan-ballerina@v0.1.0
+        uses: CharanaManawathilake/scan-ballerina@allow-pr-code-scanning-upload
         with:
           ballerina-version: 2201.13.5
           paths: order-service
