@@ -12,7 +12,7 @@ on:
 permissions:
   contents: read
 
-# Scans the order service and uploads the findings to GitHub code scanning.
+# Scans the order service and shows the findings as workflow annotations, without uploading them.
 # The gate allows 5 high findings. main has 8, so the job fails on main and on every pull request,
 # because the gate counts every finding in the package, not only new ones. Code scanning also
 # compares a pull request's findings with main, and the "Block new code scanning alerts" ruleset
@@ -37,7 +37,6 @@ jobs:
           exclude-tests: true
           fail-on-severity: high
           max-findings: 5
-          annotations: false
+          annotations: true
           job-summary: true
           artifacts: true
-          platforms: github-code-scanning
