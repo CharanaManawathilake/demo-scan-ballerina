@@ -39,8 +39,11 @@ jobs:
 
       - name: Scan order service
         uses: CharanaManawathilake/scan-ballerina@allow-pr-code-scanning-upload
+        env:
+          BALLERINA_STAGE_CENTRAL: 'true' # bal scan 0.11.1 is only on staging Central
         with:
           ballerina-version: 2201.13.5
+          tool-version: 0.11.1
           paths: order-service
           category: order-service
           exclude-tests: true
