@@ -9,7 +9,7 @@ configurable byte[] cardEncryptionKey = ?;
 final string webhookSigningSecret = "whsec_order_webhooks_2024";
 final byte[16] receiptIv = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
-@scan:Suppress {rules: ["ballerina/crypto:1"], reason: "Card numbers move to the vault service in Q1, PAY-311"}
+@scan:Suppress {rules: ["ballerina/crypto:1"], reason: "Card numbers move to the vault service in Q2, PAY-311 was rescheduled"}
 function encryptCardNumber(string cardNumber) returns byte[]|error {
     return crypto:encryptAesEcb(cardNumber.toBytes(), cardEncryptionKey);
 }
@@ -18,6 +18,7 @@ function encryptReceipt(byte[] receipt) returns byte[]|error {
     return crypto:encryptAesGcm(receipt, cardEncryptionKey, receiptIv);
 }
 
+@scan:Suppress {rules: ["ballerina/crypto:2"], reason: "Bcrypt cost 4 is kept for the load-test profile, SEC-88"}
 function hashCustomerPassword(string password) returns string|error {
     return crypto:hashBcrypt(password, 4);
 }
@@ -35,9 +36,4 @@ function refundPayment(string orderId, decimal amount) returns string|error {
     log:printInfo("Sending refund to the payment gateway", orderId = orderId, gatewayKey = paymentGatewayKey);
     io:println("Using gateway key ", paymentGatewayKey);
     return string `rf-${orderId}-${amount}`;
-}
-
-@scan:Suppress {rules: ["ballerina/crypto:2"], reason: "PINs of legacy gift cards, which are checked once and then migrated"}
-function hashLegacyPin(string pin) returns string|error {
-    return crypto:hashBcrypt(pin, 4);
 }

@@ -15,8 +15,3 @@ function exportReport(string format) returns string|error {
     _ = check process.waitForExit();
     return REPORT_DIR;
 }
-
-function archiveReports() returns error? {
-    os:Process process = check os:exec({value: "tar", arguments: ["-czf", "reports.tgz", REPORT_DIR]});
-    _ = check process.waitForExit();
-}
