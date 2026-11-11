@@ -33,13 +33,10 @@ function isPriority(Order 'order) returns boolean {
     return 'order.status == "PAID" || 'order.status == "PAID";
 }
 
-function parseQuantity(string raw) returns int {
-    return checkpanic int:fromString(raw);
-}
-
 function weeklyBuckets() returns int[] {
     int[] buckets = [];
     foreach int day in 7 ... 1 {
+        // Days count down from Sunday.
         buckets.push(day);
     }
     return buckets;
