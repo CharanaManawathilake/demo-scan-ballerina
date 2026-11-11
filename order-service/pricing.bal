@@ -44,3 +44,7 @@ function weeklyBuckets() returns int[] {
     }
     return buckets;
 }
+
+function parseDiscountRate(string raw) returns decimal {
+    return checkpanic decimal:fromString(raw);
+}
