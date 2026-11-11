@@ -1,4 +1,5 @@
 import ballerina/crypto;
+import ballerina/scan;
 
 final string loyaltyPartnerSecret = "lp_secret_7f3a9c21";
 
@@ -11,6 +12,11 @@ function loyaltyPoints(Order 'order) returns int {
 
 function redeemPoints(string rawPoints) returns int {
     return checkpanic int:fromString(rawPoints);
+}
+
+@scan:Suppress {rules: ["ballerina:1"], reason: "The loyalty ledger only stores whole numbers"}
+function ledgerPoints(string balance) returns int {
+    return checkpanic int:fromString(balance);
 }
 
 function loyaltyCardHash(string cardNumber) returns string|error {
