@@ -18,7 +18,6 @@ function encryptReceipt(byte[] receipt) returns byte[]|error {
     return crypto:encryptAesGcm(receipt, cardEncryptionKey, receiptIv);
 }
 
-@scan:Suppress {rules: ["ballerina/crypto:2"], reason: "Bcrypt cost 4 is kept for the load-test profile, SEC-88"}
 function hashCustomerPassword(string password) returns string|error {
     return crypto:hashBcrypt(password, 4);
 }
