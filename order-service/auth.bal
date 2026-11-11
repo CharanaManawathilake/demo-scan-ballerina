@@ -1,13 +1,11 @@
 import ballerina/http;
 import ballerina/jwt;
-import ballerina/scan;
 
 configurable string jwtIssuer = "order-service";
 configurable string partnerJwksUrl = "https://partners.example.com/.well-known/jwks.json";
 
 function authenticate(http:Request req) returns jwt:Payload|error {
     string authHeader = check req.getHeader("Authorization");
-    @scan:Suppress {rules: ["ballerina/jwt:5"], reason: "Some mobile clients drift by up to an hour"}
     jwt:ValidatorConfig config = {
         clockSkew: 3600
     };
