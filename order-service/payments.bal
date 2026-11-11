@@ -36,7 +36,3 @@ function refundPayment(string orderId, decimal amount) returns string|error {
     io:println("Using gateway key ", paymentGatewayKey);
     return string `rf-${orderId}-${amount}`;
 }
-
-function hashLegacyPin(string pin) returns string|error {
-    return crypto:hashBcrypt(pin, 4);
-}
