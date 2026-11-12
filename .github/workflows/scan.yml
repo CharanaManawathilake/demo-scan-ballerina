@@ -41,7 +41,7 @@ jobs:
         run: bal build
 
       - name: Scan order service
-        uses: CharanaManawathilake/scan-ballerina@bdbc45047bb4f6ce896582f528c1568c79d79421 # support-in-source-suppressions
+        uses: CharanaManawathilake/scan-ballerina@0541fd97806a1d8cdabcd7f447b2720a22ae2ca4 # support-in-source-suppressions
         env:
           BALLERINA_STAGE_CENTRAL: 'true' # bal scan 0.11.1 is only on staging Central
         with:
