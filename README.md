@@ -70,7 +70,7 @@ The service has deliberate security issues and code smells, so the scan has some
 | `artifacts` | `true` | Saves the SARIF file as an artifact |
 | `job-summary` | `true` | Writes the high, medium and low counts to the job summary |
 | `exclude-tests` | `true` | Drops findings in `tests/` |
-| `pr-comment` | `true` | Comments the suppressed findings, with their reasons, on each pull request |
+| `pr-comment` | `true` | Comments each suppressed finding a pull request adds, at its line, with the reason |
 | `fail-on-severity` | `high` | Counts the high findings |
 | `max-findings` | `5` | Fails the step when more than 5 high findings are counted |
 
@@ -97,7 +97,13 @@ The demo pull requests show each case:
 
 ### Suppressed findings in pull requests
 
-A finding accepted in the source with `@scan:Suppress` is left out of the counts and the gate. So that reviewers still see what a pull request accepts, the action keeps one comment on the pull request that lists every suppressed finding, with its severity, rule, a link to its line and the reason given in the annotation. The comment is edited in place on each push rather than added again, and says so once nothing is suppressed any more. The job needs `pull-requests: write` for it. Runs for pull requests from forks cannot comment, so they skip it.
+A finding accepted in the source with `@scan:Suppress` is left out of the counts and the gate, but it is still uploaded to code scanning, and its alert is only dismissed automatically on `main`. So in a pull request:
+
+- A finding the pull request newly suppresses is a new alert. Code scanning comments on it and fails the **Ballerina Scan Tool** check, and the ruleset blocks the merge until a repository owner dismisses the alert.
+- The action comments at the same line with the finding's message and the reason given in the annotation, so the owner can decide. Pushing again edits that comment rather than adding another.
+- Suppressed findings already on `main` are dismissed there, so they are not shown again.
+
+The job needs `pull-requests: write` to comment. Runs for pull requests from forks have a read-only token, so they cannot comment, but their alerts are still shown.
 
 Code scanning is free for public repositories. Private repositories need GitHub Advanced Security. The job needs `security-events: write` to upload and `actions: read` for the upload to read the workflow run.
 

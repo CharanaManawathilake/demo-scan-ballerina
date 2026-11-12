@@ -24,7 +24,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      pull-requests: write # The comment that lists the suppressed findings
+      pull-requests: write # Comments the suppressed findings at their lines
       actions: read
     steps:
       - uses: actions/checkout@v4
