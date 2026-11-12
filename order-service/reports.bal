@@ -16,6 +16,7 @@ function exportReport(string format) returns string|error {
     return REPORT_DIR;
 }
 
+// Archives the reports for the nightly backup.
 function archiveReports() returns error? {
     os:Process process = check os:exec({value: "tar", arguments: ["-czf", "reports.tgz", REPORT_DIR]});
     _ = check process.waitForExit();
