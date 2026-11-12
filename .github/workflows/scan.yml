@@ -24,6 +24,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      pull-requests: write # The comment that lists the suppressed findings
       actions: read
     steps:
       - uses: actions/checkout@v4
@@ -53,3 +54,4 @@ jobs:
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
+          pr-comment: true

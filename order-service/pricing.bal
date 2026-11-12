@@ -40,6 +40,11 @@ function parseQuantity(string raw) returns int {
     return checkpanic int:fromString(raw);
 }
 
+@scan:Suppress {rules: ["ballerina:1"], reason: "Points come from the loyalty ledger, which only stores whole numbers, LOY-17"}
+function parseLoyaltyPoints(string raw) returns int {
+    return checkpanic int:fromString(raw);
+}
+
 function weeklyBuckets() returns int[] {
     int[] buckets = [];
     foreach int day in 7 ... 1 {
