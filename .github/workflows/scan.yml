@@ -52,8 +52,7 @@ jobs:
           exclude-tests: true
           fail-on-severity: high
           fail-on-count: 6
-          annotations: false
+          annotations: true
           job-summary: true
           artifacts: true
-          platforms: github-code-scanning
           pr-comment: true
