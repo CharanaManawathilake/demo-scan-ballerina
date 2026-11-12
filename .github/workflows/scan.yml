@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - demo-base # A fixed base for the demo pull requests, as main keeps changing
   pull_request:
     branches:
       - main
+      - demo-base
   workflow_dispatch:
 
 permissions:
@@ -24,6 +26,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      pull-requests: write # Comments the suppressed findings at their lines
       actions: read
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +41,7 @@ jobs:
         run: bal build
 
       - name: Scan order service
-        uses: CharanaManawathilake/scan-ballerina@support-in-source-suppressions
+        uses: CharanaManawathilake/scan-ballerina@be2d04845c592084f9e50d941e2c4bc5bf20a990 # support-in-source-suppressions
         env:
           BALLERINA_STAGE_CENTRAL: 'true' # bal scan 0.11.1 is only on staging Central
         with:
@@ -53,3 +56,4 @@ jobs:
           job-summary: true
           artifacts: true
           platforms: github-code-scanning
+          pr-comment: true
