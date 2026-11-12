@@ -29,14 +29,14 @@ jobs:
           version: 2201.13.5
 
       - name: Build order service
-        working-directory: order-service
+        working-directory: orders
         run: bal build
 
       - name: Scan and send to SonarQube
         uses: CharanaManawathilake/scan-ballerina@allow-pr-code-scanning-upload
         with:
           ballerina-version: 2201.13.5
-          paths: order-service
+          paths: orders
           category: sonarqube
           exclude-tests: true
           job-summary: true
@@ -46,6 +46,6 @@ jobs:
               host-url: '${{ vars.SONAR_HOST_URL }}'
               token: '${{ secrets.SONAR_TOKEN }}'
               packages:
-                - path: order-service
+                - path: orders
                   project-key: demo-scan-ballerina-order-service
                   project-name: demo-scan-ballerina order service

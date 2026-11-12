@@ -37,7 +37,7 @@ jobs:
           version: 2201.13.5
 
       - name: Build order service
-        working-directory: order-service
+        working-directory: orders
         run: bal build
 
       - name: Scan order service
@@ -47,8 +47,8 @@ jobs:
         with:
           ballerina-version: 2201.13.5
           tool-version: 0.11.1
-          paths: order-service
-          category: order-service
+          paths: orders
+          category: orders
           exclude-tests: true
           fail-on-severity: high
           fail-on-count: 6

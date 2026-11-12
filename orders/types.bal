@@ -9,7 +9,6 @@ public type NewOrder record {|
     string customerId;
     decimal[] itemPrices;
     decimal shipping;
-    string currency;
 |};
 
 public type RefundRequest record {|
