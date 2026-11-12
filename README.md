@@ -20,9 +20,9 @@ A demo of the [scan-ballerina](https://github.com/ballerina-platform/scan-baller
 
 ## The findings
 
-The service is kept to five findings, each used by one demo, so every other alert in **Security > Code scanning** comes from a demo and is easy to tell apart:
+The baseline, kept as `demo-base`, has five findings, each used by one demo, so every other alert in **Security > Code scanning** comes from a demo and is easy to tell apart. The demos merged into `main` have since fixed `crypto:2`, removed `encryptCardNumber` and added `compressLog`:
 
-| File | Rule | Issue | State on `main` |
+| File | Rule | Issue | State in the baseline |
 | --- | --- | --- | --- |
 | `auth.bal` | `ballerina/jwt:5` | Customer tokens are validated with a clock skew of one hour | Open |
 | `logging.bal` | `ballerina/log:2` | The log file is written to `/tmp` | Open |
@@ -60,36 +60,36 @@ The ruleset also needs code scanning results for every pull request, so a pull r
 
 ### Demo pull requests to `demo-base`
 
-`main` keeps changing, so these pull requests target `demo-base`, a fixed copy of `main` that is scanned on every push like `main`, and that the ruleset covers too. They stay open to show each case:
+`main` keeps changing, so these pull requests target `demo-base`, a fixed copy of the baseline that is scanned on every push like `main`, and that the ruleset covers too. They stay open to show each case:
 
-| Pull request | Change | Expected in the pull request | Merge |
-| --- | --- | --- | --- |
-| `demo-1` | New findings in `loyalty.bal`, one suppressed, shown as annotations and not uploaded | Annotations for the findings. The suppressed one gets a comment of its own from the action, with the finding's severity, rule and message and the reason | Blocked, waiting for code scanning results |
-| `demo-2` | Lets customers cancel an order, with no new findings | Nothing | Allowed |
-| `demo-3` | New findings in `webhooks.bal`, one of them suppressed | Code scanning comments each new alert. The action replies to the suppressed one with its reason | Blocked |
-| `demo-4` | New findings, all suppressed | Code scanning comments both, and the action replies to each with its reason | Blocked until both alerts are dismissed |
-| `demo-5` | Suppresses `jwt:5`, already open on the base branch | Nothing: the alert is not new, and the finding's line is not one the pull request adds | Allowed. Its alert would be dismissed only by a merge to `main` |
-| `demo-6` | Removes the suppression of `parseQuantity` | A warning at the finding that it is no longer suppressed, and that its alert stays dismissed on `main` until the change is merged there | Allowed |
+| Pull request | Change | Ballerina Scan Tool | What the pull request shows | Merge |
+| --- | --- | --- | --- | --- |
+| [#57](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/57) `demo-1` | New findings in `loyalty.bal`, one suppressed, shown as annotations and not uploaded | No results | Annotations for the findings. The suppressed `ledgerPoints` gets a comment of its own from the action, with the finding's severity, rule and message and the reason | Blocked, waiting for code scanning results |
+| [#58](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/58) `demo-2` | Lets customers cancel an order, with no new findings | No new alerts | Nothing | Allowed |
+| [#59](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/59) `demo-3` | New findings in `webhooks.bal`, one of them suppressed | 3 new alerts | Code scanning comments #79, #80 and #81. The action replies to #80, the suppressed one, with its reason | Blocked |
+| [#60](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/60) `demo-4` | New findings in `rewards.bal`, all suppressed | 2 new alerts | Code scanning comments #82 and #83, and the action replies to each with its reason | Blocked until both alerts are dismissed |
+| [#61](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/61) `demo-5` | Suppresses `jwt:5` (#77), already open on the base branch | No new alerts | Nothing: the alert is not new, and the finding's line is not one the pull request adds | Allowed. Its alert would be dismissed only by a merge to `main` |
+| [#62](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/62) `demo-6` | Removes the suppression of `parseQuantity` (#74) | No new alerts | A warning at the finding that it is no longer suppressed, and that #74 stays dismissed on `main` until the change is merged there | Allowed |
 
 ### Demo pull requests to `main`
 
-These pull requests show what each change does to the alerts in **Security > Code scanning** once merged. Each has an issue that gives the expected result, and they are merged one at a time, as each merge changes the alerts of `main`:
+These pull requests show what each change does to the alerts in **Security > Code scanning**. Each has an issue that gave the expected result and records what happened. They were merged one at a time, each after the scan of the one before:
 
-| Branch | Change | Expected in the pull request | Alert after the merge |
-| --- | --- | --- | --- |
-| `main-suppress-existing` | Suppresses `log:2`, open on `main` | Nothing | Closed, dismissed as *won't fix* with the reason |
-| `main-remove-suppression` | Removes that suppression again | A warning that the finding is no longer suppressed | Open again |
-| `main-fix-finding` | Fixes `crypto:2` in `hashCustomerPassword` | Nothing | Closed as fixed |
-| `main-remove-suppressed-code` | Removes `encryptCardNumber`, whose `crypto:1` finding is suppressed | Nothing | Closed as fixed, no longer *won't fix* |
-| `main-new-suppressed` | Adds `compressLog`, suppressed from the start | 1 new alert, with the reason as a reply. Blocked until it is dismissed | Stays closed, and its comment becomes the suppression's reason |
+| Issue | Pull request | Change | What the pull request showed | Alert after the merge |
+| --- | --- | --- | --- | --- |
+| [#63](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/63) | [#68](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/68) | Suppresses `log:2` (#78), open on `main` | Nothing | #78 closed, dismissed as *won't fix* with the reason |
+| [#64](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/64) | [#72](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/72) | Removes that suppression again | A warning that the finding is no longer suppressed | #78 open again |
+| [#65](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/65) | [#69](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/69) | Fixes `crypto:2` (#76) in `hashCustomerPassword` | Nothing | #76 closed as fixed |
+| [#66](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/66) | [#70](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/70) | Removes `encryptCardNumber`, whose `crypto:1` finding (#75) is suppressed | Nothing | #75 closed as fixed, no longer *won't fix* |
+| [#67](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/67) | [#71](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/71) | Adds `compressLog`, suppressed from the start | 1 new alert, #84, with the reason as a reply. Blocked until #84 was dismissed by hand | #84 stays closed, and its comment becomes the suppression's reason |
 
 ### Suppressed findings in pull requests
 
 A finding accepted in the source with `@scan:Suppress` is left out of the counts and the gate, but it is still uploaded to code scanning, and its alert is only dismissed automatically on `main`. So in a pull request:
 
-- A finding the pull request newly suppresses is a new alert. Code scanning comments on it, and the ruleset blocks the merge until someone allowed to dismiss alerts dismisses it (`demo-4`, `main-new-suppressed`).
-- The action replies to code scanning's comment with the reason given in the annotation, so the reviewer can decide. A finding code scanning does not comment, such as one in a run that does not upload, gets a comment of its own at its line (`demo-1`). Pushing again edits that comment rather than adding another.
-- Suppressing a finding already on the base branch shows nothing (`demo-5`), and removing a suppression shows a warning (`demo-6`).
+- A finding the pull request newly suppresses is a new alert. Code scanning comments on it, and the ruleset blocks the merge until someone allowed to dismiss alerts dismisses it ([#60](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/60), [#71](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/71)).
+- The action replies to code scanning's comment with the reason given in the annotation, so the reviewer can decide. A finding code scanning does not comment, such as one in a run that does not upload, gets a comment of its own at its line ([#57](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/57)). Pushing again edits that comment rather than adding another.
+- Suppressing a finding already on the base branch shows nothing ([#61](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/61)), and removing a suppression shows a warning ([#62](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/62)).
 - Suppressed findings already on `main` are dismissed there, so they are not shown again.
 
 The job needs `pull-requests: write` to comment. Runs for pull requests from forks have a read-only token, so they cannot comment, but their alerts are still shown.
