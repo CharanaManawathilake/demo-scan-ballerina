@@ -41,7 +41,7 @@ The baseline, kept as `demo-base`, has five findings, each used by one demo, so 
 | `artifacts` | `true` | Saves the SARIF file as an artifact |
 | `job-summary` | `true` | Writes the high, medium and low counts to the job summary |
 | `exclude-tests` | `true` | Drops findings in `tests/` |
-| `pr-comment` | `true` | Posts the reason of each suppressed finding a pull request adds, as a reply to code scanning's comment on its alert |
+| `pr-comment` | `true` | Posts the reason of each suppressed finding a pull request adds, as a reply to code scanning's comment on its alert, and keeps one comment listing the `@scan:Suppress` annotations the pull request adds and removes |
 | `fail-on-severity` | `high` | Counts the high findings |
 | `fail-on-count` | `6` | Fails the step when 6 or more high findings are counted |
 
@@ -64,12 +64,12 @@ The ruleset also needs code scanning results for every pull request, so a pull r
 
 | Pull request | Change | Ballerina Scan Tool | What the pull request shows | Merge |
 | --- | --- | --- | --- | --- |
-| [#57](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/57) `demo-1` | New findings in `loyalty.bal`, one suppressed, shown as annotations and not uploaded | No results | Annotations for the findings. The suppressed `ledgerPoints` gets a comment of its own from the action, with the finding's severity, rule and message and the reason | Blocked, waiting for code scanning results |
+| [#57](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/57) `demo-1` | New findings in `loyalty.bal`, one suppressed, shown as annotations and not uploaded | No results | Annotations for the findings, and a warning at the added `@scan:Suppress`. The suppressed `ledgerPoints` gets a comment of its own from the action, with the finding's severity, rule and message and the reason, and the summary comment lists the added annotation | Blocked, waiting for code scanning results |
 | [#58](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/58) `demo-2` | Lets customers cancel an order, with no new findings | No new alerts | Nothing | Allowed |
-| [#59](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/59) `demo-3` | New findings in `webhooks.bal`, one of them suppressed | 3 new alerts | Code scanning comments #79, #80 and #81. The action replies to #80, the suppressed one, with its reason | Blocked |
-| [#60](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/60) `demo-4` | New findings in `rewards.bal`, all suppressed | 2 new alerts | Code scanning comments #82 and #83, and the action replies to each with its reason | Blocked until both alerts are dismissed |
-| [#61](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/61) `demo-5` | Suppresses `jwt:5` (#77), already open on the base branch | No new alerts | Nothing: the alert is not new, and the finding's line is not one the pull request adds | Allowed. Its alert would be dismissed only by a merge to `main` |
-| [#62](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/62) `demo-6` | Removes the suppression of `parseQuantity` (#74) | No new alerts | A warning at the finding that it is no longer suppressed, and that #74 stays dismissed on `main` until the change is merged there | Allowed |
+| [#59](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/59) `demo-3` | New findings in `webhooks.bal`, one of them suppressed | 3 new alerts | Code scanning comments #79, #80 and #81. The action replies to #80, the suppressed one, with its reason, warns at the added `@scan:Suppress`, and lists it in the summary comment | Blocked |
+| [#60](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/60) `demo-4` | New findings in `rewards.bal`, all suppressed | 2 new alerts | Code scanning comments #82 and #83, and the action replies to each with its reason, warns at both added annotations, and lists them in the summary comment | Blocked until both alerts are dismissed |
+| [#61](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/61) `demo-5` | Suppresses `jwt:5` (#77), already open on the base branch | No new alerts | No new alert, as #77 is not new. The action warns at the added `@scan:Suppress` and lists it in the summary comment, since otherwise nothing would show that a finding left the gate | Allowed. Its alert would be dismissed only by a merge to `main` |
+| [#62](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/62) `demo-6` | Removes the suppression of `parseQuantity` (#74) | No new alerts | A notice at the removed `@scan:Suppress`, a warning at the finding that it is no longer suppressed and that #74 stays dismissed on `main` until the change is merged there, and the summary comment listing the removed annotation | Allowed |
 
 ### Demo pull requests to `main`
 
@@ -89,7 +89,8 @@ A finding accepted in the source with `@scan:Suppress` is left out of the counts
 
 - A finding the pull request newly suppresses is a new alert. Code scanning comments on it, and the ruleset blocks the merge until someone allowed to dismiss alerts dismisses it ([#60](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/60), [#71](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/71)).
 - The action replies to code scanning's comment with the reason given in the annotation, so the reviewer can decide. A finding code scanning does not comment, such as one in a run that does not upload, gets a comment of its own at its line ([#57](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/57)). Pushing again edits that comment rather than adding another.
-- Suppressing a finding already on the base branch shows nothing ([#61](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/61)), and removing a suppression shows a warning ([#62](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/62)).
+- The action warns at each `@scan:Suppress` the pull request adds and puts a notice at each one it removes, read from the diff, so also in runs for forks. One comment in the pull request's conversation lists them, with links to their lines, and later runs edit it. A moved annotation, or one whose reason alone changes, is neither.
+- Suppressing a finding already on the base branch adds no alert, so the warning and the summary comment are what show it ([#61](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/61)), and removing a suppression shows a notice and a warning ([#62](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/62)).
 - Suppressed findings already on `main` are dismissed there, so they are not shown again.
 
 The job needs `pull-requests: write` to comment. Runs for pull requests from forks have a read-only token, so they cannot comment, but their alerts are still shown.
