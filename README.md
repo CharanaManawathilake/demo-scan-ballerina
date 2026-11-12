@@ -22,7 +22,7 @@ The service has deliberate security issues and code smells, so the scan has some
 
 ## The findings
 
-`bal scan` reports 34 findings for 31 rules, 8 high, 12 medium and 14 low:
+The issues are listed below by the severity of their rule. `bal scan` 0.11.1, which the workflow uses, reports the high ones as medium, and has no rules `ballerina:13` and `ballerina:14`, so on `main` it reports 30 findings, 18 medium and 12 low, 3 of them suppressed with `@scan:Suppress`:
 
 | File | Severity | Rule | Issue |
 | --- | --- | --- | --- |
@@ -32,10 +32,8 @@ The service has deliberate security issues and code smells, so the scan has some
 | `auth.bal` | Medium | `ballerina/jwt:3` | Customer tokens are validated without checking the issuer and audience |
 | `auth.bal` | Medium | `ballerina/jwt:4` | Customer tokens expire after 30 days |
 | `auth.bal` | Medium | `ballerina/jwt:5` | A clock skew of one hour |
-| `auth.bal` | Medium | `ballerina:14` | The `Authorization` header is treated as a secret that is not configurable |
 | `auth.bal` | Low | `ballerina/jwt:7` | A token is decoded without being verified |
 | `auth.bal` | Low | `ballerina:3` | `issueToken` is public but not isolated |
-| `payments.bal` | High | `ballerina:13` | The webhook signing secret is a literal value |
 | `payments.bal` | High | `ballerina/io:2` | The payment gateway key is printed to the console |
 | `payments.bal` | Medium | `ballerina/crypto:1` | Card numbers are encrypted with AES in ECB mode |
 | `payments.bal` | Medium | `ballerina/crypto:2` | Passwords are hashed with a BCrypt work factor of 4 |
@@ -72,7 +70,7 @@ The service has deliberate security issues and code smells, so the scan has some
 | `exclude-tests` | `true` | Drops findings in `tests/` |
 | `pr-comment` | `true` | Posts the reason of each suppressed finding a pull request adds, as a reply to code scanning's comment on its alert |
 | `fail-on-severity` | `high` | Counts the high findings |
-| `max-findings` | `5` | Fails the step when more than 5 high findings are counted |
+| `fail-on-count` | `6` | Fails the step when 6 or more high findings are counted |
 
 The findings on `main` are under **Security > Code scanning**.
 
@@ -82,30 +80,43 @@ The two kinds of gate count different findings:
 
 | Gate | Runs on | Counts | Result |
 | --- | --- | --- | --- |
-| `fail-on-severity` and `max-findings` in the action | `main` and pull requests | Every finding in the package | `main` has 8 high findings and 5 are allowed, so the job fails on `main` and on every pull request |
-| Code scanning and the **Block new code scanning alerts** ruleset | Pull requests | Only the findings that are new compared with `main` | New alerts fail the **Ballerina Scan Tool** check and block the merge. No new alerts passes, even with the existing alerts on `main` |
+| `fail-on-severity` and `fail-on-count` in the action | `main`, `demo-base` and pull requests | Every finding in the package that is not suppressed | 0.11.1 reports no high findings, so **Scan order service** passes |
+| Code scanning and the **Block new code scanning alerts** ruleset, on `main` and `demo-base` | Pull requests | Only the findings that are new compared with the base branch, in code the pull request changes | The **Ballerina Scan Tool** check passes either way, and its title gives the number of new alerts. Any new alert blocks the merge, until it is dismissed. Existing alerts on the base branch do not |
 
 The ruleset also needs code scanning results for every pull request, so a pull request that does not upload its findings cannot be merged.
 
-### Demo pull requests
+### Demo pull requests to `demo-base`
 
-`main` keeps changing, so the demo pull requests target `demo-base`, a fixed copy of `main` that is scanned on every push like `main`, and that the ruleset covers too. They stay open to show each case:
+`main` keeps changing, so these pull requests target `demo-base`, a fixed copy of `main` that is scanned on every push like `main`, and that the ruleset covers too. They stay open to show each case:
 
-| Branch | Change |
-| --- | --- |
-| `demo-1` | New findings, with annotations and no upload |
-| `demo-2` | No new findings |
-| `demo-3` | New findings, one of them suppressed, uploaded |
-| `demo-4` | New findings, all suppressed |
-| `demo-5` | Suppresses a finding that is already on the base branch |
-| `demo-6` | Removes a suppression that is on the base branch |
+| Pull request | Change | Ballerina Scan Tool | What the pull request shows | Merge |
+| --- | --- | --- | --- | --- |
+| [#29](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/29) `demo-1` | New findings, shown as annotations and not uploaded | No results | Annotations for 19 of the 33 findings, as GitHub shows at most 10 of each level per step. The suppressed `ledgerPoints` gets a comment of its own from the action, with the finding's severity, rule and message and the reason | Blocked, waiting for code scanning results |
+| [#30](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/30) `demo-2` | No new findings | No new alerts | Nothing | Allowed |
+| [#31](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/31) `demo-3` | New findings, one of them suppressed | 3 new alerts | Code scanning comments the 3 alerts. The suppressed `jwt:7` at `webhooks.bal:18` is one of them, and the action replies in its thread with the reason | Blocked |
+| [#45](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/45) `demo-4` | New findings, all suppressed | 2 new alerts | Code scanning comments both, and the action replies to each with its reason | Blocked until both alerts are dismissed |
+| [#46](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/46) `demo-5` | Suppresses `jwt:5`, already open on the base branch | No new alerts | Nothing: the alert is not new, and the finding's line is not one the pull request adds | Allowed. Its alert would be dismissed only by a merge to `main` |
+| [#47](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/47) `demo-6` | Removes the suppression of `parseQuantity` | No new alerts | A warning at the finding that it is no longer suppressed, and that its alert stays dismissed on `main` until the change is merged there | Allowed |
+
+### Demo pull requests to `main`
+
+These pull requests show what each change does to the alerts in **Security > Code scanning** once merged. Each has an issue that gives the expected result, and they are merged one at a time, as each merge changes the alerts of `main`:
+
+| Issue | Pull request | Change | What the pull request shows | Alert after the merge |
+| --- | --- | --- | --- | --- |
+| [#48](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/48) | [#53](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/53) | Suppresses `log:2`, open on `main` | Nothing | Closed, dismissed as *won't fix* with the reason |
+| [#49](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/49) | Opened once #53 is merged | Removes that suppression again | A warning that the finding is no longer suppressed | Open again |
+| [#50](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/50) | [#54](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/54) | Fixes `crypto:2` in `hashCustomerPassword` | Nothing | Closed as fixed |
+| [#51](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/51) | [#55](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/55) | Removes `encryptCardNumber`, whose `crypto:1` finding is suppressed | Nothing | Closed as fixed, no longer *won't fix* |
+| [#52](https://github.com/CharanaManawathilake/demo-scan-ballerina/issues/52) | [#56](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/56) | Adds `compressLog`, suppressed from the start | 1 new alert, with the reason as a reply. Blocked until it is dismissed | Stays closed, and its comment becomes the suppression's reason |
 
 ### Suppressed findings in pull requests
 
 A finding accepted in the source with `@scan:Suppress` is left out of the counts and the gate, but it is still uploaded to code scanning, and its alert is only dismissed automatically on `main`. So in a pull request:
 
-- A finding the pull request newly suppresses is a new alert. Code scanning comments on it and fails the **Ballerina Scan Tool** check, and the ruleset blocks the merge until a repository owner dismisses the alert.
-- The action replies to code scanning's comment with the reason given in the annotation, so the owner can decide. A finding code scanning does not comment gets a comment of its own at its line. Pushing again edits that reply rather than adding another.
+- A finding the pull request newly suppresses is a new alert. Code scanning comments on it, and the ruleset blocks the merge until someone allowed to dismiss alerts dismisses it ([#45](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/45), [#56](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/56)).
+- The action replies to code scanning's comment with the reason given in the annotation, so the reviewer can decide. A finding code scanning does not comment, such as one in a run that does not upload, gets a comment of its own at its line ([#29](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/29)). Pushing again edits that comment rather than adding another.
+- Suppressing a finding already on the base branch shows nothing ([#46](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/46)), and removing a suppression shows a warning ([#47](https://github.com/CharanaManawathilake/demo-scan-ballerina/pull/47)).
 - Suppressed findings already on `main` are dismissed there, so they are not shown again.
 
 The job needs `pull-requests: write` to comment. Runs for pull requests from forks have a read-only token, so they cannot comment, but their alerts are still shown.
