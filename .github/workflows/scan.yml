@@ -4,15 +4,17 @@ on:
   push:
     branches:
       - main
+      - demo-base # A fixed base for the demo pull requests, as main keeps changing
   pull_request:
     branches:
       - main
+      - demo-base
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Scans the order service and shows the findings as workflow annotations, without uploading them.
+# Scans the order service and uploads the findings to GitHub code scanning.
 # The gate allows 5 high findings. main has 8, so the job fails on main and on every pull request,
 # because the gate counts every finding in the package, not only new ones. Code scanning also
 # compares a pull request's findings with main, and the "Block new code scanning alerts" ruleset
@@ -24,6 +26,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      pull-requests: write # Comments the suppressed findings at their lines
       actions: read
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +41,7 @@ jobs:
         run: bal build
 
       - name: Scan order service
-        uses: CharanaManawathilake/scan-ballerina@support-in-source-suppressions
+        uses: CharanaManawathilake/scan-ballerina@be2d04845c592084f9e50d941e2c4bc5bf20a990 # support-in-source-suppressions
         env:
           BALLERINA_STAGE_CENTRAL: 'true' # bal scan 0.11.1 is only on staging Central
         with:
@@ -52,3 +55,4 @@ jobs:
           annotations: true
           job-summary: true
           artifacts: true
+          pr-comment: true
