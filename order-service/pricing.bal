@@ -1,4 +1,3 @@
-import ballerina/scan;
 
 public type PaymentGateway object {
     public function charge(decimal amount) returns string|error;
