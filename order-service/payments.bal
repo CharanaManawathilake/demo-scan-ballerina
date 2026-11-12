@@ -9,12 +9,6 @@ configurable byte[] cardEncryptionKey = ?;
 final string webhookSigningSecret = "whsec_order_webhooks_2024";
 final byte[16] receiptIv = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
-@scan:Suppress {rules: ["ballerina/crypto:1"], reason: "Card numbers move to the vault service in Q2, PAY-311 was rescheduled"}
-function encryptCardNumber(string cardNumber) returns byte[]|error {
-    return crypto:encryptAesEcb(cardNumber.toBytes(), cardEncryptionKey);
-    // The vault service replaces this function, PAY-311.
-}
-
 function encryptReceipt(byte[] receipt) returns byte[]|error {
     return crypto:encryptAesGcm(receipt, cardEncryptionKey, receiptIv);
 }
