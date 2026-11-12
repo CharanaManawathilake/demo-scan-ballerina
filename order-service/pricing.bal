@@ -35,7 +35,6 @@ function isPriority(Order 'order) returns boolean {
     return 'order.status == "PAID" || 'order.status == "PAID";
 }
 
-@scan:Suppress {rules: ["ballerina:1"], reason: "Quantities are validated by the API gateway, API-204"}
 function parseQuantity(string raw) returns int {
     return checkpanic int:fromString(raw);
 }
