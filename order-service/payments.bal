@@ -20,7 +20,7 @@ function encryptReceipt(byte[] receipt) returns byte[]|error {
 }
 
 function hashCustomerPassword(string password) returns string|error {
-    return crypto:hashBcrypt(password, 4);
+    return crypto:hashBcrypt(password, 12);
 }
 
 function fingerprintCard(string cardNumber) returns string {
