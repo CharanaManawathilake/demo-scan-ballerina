@@ -14,5 +14,5 @@ function refundReference(string orderId, decimal amount) returns string {
 }
 
 function hashCustomerPassword(string password) returns string|error {
-    return crypto:hashBcrypt(password, 4);
+    return crypto:hashBcrypt(password, 12);
 }
