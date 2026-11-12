@@ -61,7 +61,7 @@ The service has deliberate security issues and code smells, so the scan has some
 
 ## GitHub code scanning
 
-[`.github/workflows/scan.yml`](.github/workflows/scan.yml) runs on every push to `main` and every pull request to `main`, and can be run by hand from the **Actions** tab. One job scans `order-service` with the category `order-service`:
+[`.github/workflows/scan.yml`](.github/workflows/scan.yml) runs on every push to `main` and `demo-base` and every pull request to them, and can be run by hand from the **Actions** tab. One job scans `order-service` with the category `order-service`:
 
 | Input | Value | Effect |
 | --- | --- | --- |
@@ -70,6 +70,7 @@ The service has deliberate security issues and code smells, so the scan has some
 | `artifacts` | `true` | Saves the SARIF file as an artifact |
 | `job-summary` | `true` | Writes the high, medium and low counts to the job summary |
 | `exclude-tests` | `true` | Drops findings in `tests/` |
+| `pr-comment` | `true` | Posts the reason of each suppressed finding a pull request adds, as a reply to code scanning's comment on its alert |
 | `fail-on-severity` | `high` | Counts the high findings |
 | `max-findings` | `5` | Fails the step when more than 5 high findings are counted |
 
@@ -86,13 +87,28 @@ The two kinds of gate count different findings:
 
 The ruleset also needs code scanning results for every pull request, so a pull request that does not upload its findings cannot be merged.
 
-The demo pull requests show each case:
+### Demo pull requests
 
-| Branch | Change | Scan order service | Ballerina Scan Tool | Merge |
-| --- | --- | --- | --- | --- |
-| `demo-1` | New findings, with annotations and no upload | Fails | No results | Blocked |
-| `demo-2` | No new findings | Fails | Passes | Allowed |
-| `demo-3` | New findings, uploaded | Fails | Fails | Blocked |
+`main` keeps changing, so the demo pull requests target `demo-base`, a fixed copy of `main` that is scanned on every push like `main`, and that the ruleset covers too. They stay open to show each case:
+
+| Branch | Change |
+| --- | --- |
+| `demo-1` | New findings, with annotations and no upload |
+| `demo-2` | No new findings |
+| `demo-3` | New findings, one of them suppressed, uploaded |
+| `demo-4` | New findings, all suppressed |
+| `demo-5` | Suppresses a finding that is already on the base branch |
+| `demo-6` | Removes a suppression that is on the base branch |
+
+### Suppressed findings in pull requests
+
+A finding accepted in the source with `@scan:Suppress` is left out of the counts and the gate, but it is still uploaded to code scanning, and its alert is only dismissed automatically on `main`. So in a pull request:
+
+- A finding the pull request newly suppresses is a new alert. Code scanning comments on it and fails the **Ballerina Scan Tool** check, and the ruleset blocks the merge until a repository owner dismisses the alert.
+- The action replies to code scanning's comment with the reason given in the annotation, so the owner can decide. A finding code scanning does not comment gets a comment of its own at its line. Pushing again edits that reply rather than adding another.
+- Suppressed findings already on `main` are dismissed there, so they are not shown again.
+
+The job needs `pull-requests: write` to comment. Runs for pull requests from forks have a read-only token, so they cannot comment, but their alerts are still shown.
 
 Code scanning is free for public repositories. Private repositories need GitHub Advanced Security. The job needs `security-events: write` to upload and `actions: read` for the upload to read the workflow run.
 
