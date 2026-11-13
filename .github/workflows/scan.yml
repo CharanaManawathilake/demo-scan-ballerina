@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - demo-base # A fixed base for the demo pull requests, as main keeps changing
+      - demo-7-base # The base of demo-7, with several findings of one rule in one file
   pull_request:
     branches:
       - main
       - demo-base
+      - demo-7-base
   workflow_dispatch:
 
 permissions:
